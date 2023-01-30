@@ -35,18 +35,25 @@ export function ExpensesByCategory() {
 	const [endDate, setEndDate] = useState(handleEndDate);
 	const [budget, setBudget] = useState<IBudget|null>(null);
 	const [totalExpenses, setTotalExpenses] = useState(0);
+	const [isLoading, setIsLoading] = useState(false);
+
 	async function buildChart({userId} : IBuildChartParams) {
-		const {data} = await api.get<ICircleChart[]>(`/users/transactions/category/${userId}?start_date=${startDate}&end_date=${endDate}`);
-		const expenses = data.reduce((sum, transaction) => sum + transaction.total, 0);
-		setTotalExpenses(expenses);
-		const sameMonth = startDate.slice(5, 7) == endDate.slice(5,7) ? startDate.slice(5,7) : null;
-		const year = startDate.slice(0, 4);
-		if(sameMonth) {
-			const {data} = await api.get<TBudgetResponse[]>(`/users/budgets?month=${sameMonth}&year=${year}`);
-			const [budget] = data;
-			setBudget(budget);
+		try {
+
+			const {data} = await api.get<ICircleChart[]>(`/users/transactions/category/${userId}?start_date=${startDate}&end_date=${endDate}`);
+			const expenses = data.reduce((sum, transaction) => sum + transaction.total, 0);
+			setTotalExpenses(expenses);
+			const sameMonth = startDate.slice(5, 7) == endDate.slice(5,7) ? startDate.slice(5,7) : null;
+			const year = startDate.slice(0, 4);
+			if(sameMonth) {
+				const {data} = await api.get<TBudgetResponse[]>(`/users/budgets?month=${sameMonth}&year=${year}`);
+				const [budget] = data;
+				setBudget(budget);
+			}
+			setChartData(data);
+		} catch( err) {
+			setChartData([]);
 		}
-		setChartData(data);
 	}
 	function onDateChange(value: DateRangePickerValue) {
 		const dates = {
@@ -66,13 +73,14 @@ export function ExpensesByCategory() {
 	useEffect(() => {
 		if(user) {
 		
-
+			setIsLoading(true);
 			buildChart({userId : user.id});
-			
+			setIsLoading(false);
 		}
 	}, [user, startDate, endDate]);
 	return (
 		<CircleChart 
+			dataIsLoading={isLoading}
 			data={chartData} 
 			onDateChange={onDateChange} 
 			budget={budget} 

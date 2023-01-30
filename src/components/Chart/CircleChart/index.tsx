@@ -21,15 +21,16 @@ interface ICircleChart {
   model?: "all" | "donut" | "pie"
   budget?: IBudget | null
   totalExpenses: number
+  dataIsLoading: boolean
 }
 
 
-export function CircleChart({data, onDateChange, model = "donut", budget, totalExpenses} : ICircleChart) {
+export function CircleChart({data, onDateChange, model = "donut", budget, totalExpenses, dataIsLoading} : ICircleChart) {
   
 	const [isOverBudget, setIsOverBudget] = useState(false);
 	const [budgetRate, setBudgetRate] = useState("");
 	const [percent, setPercent]  = useState(0);
-	const [isLoading, setIsLoading] = useState(false);
+
 	useEffect(() => {
 		if(budget) {
 			const percent = ((totalExpenses * 100) / budget.amount).toFixed(0);
@@ -38,10 +39,6 @@ export function CircleChart({data, onDateChange, model = "donut", budget, totalE
 			setPercent(parseInt(percent));
 		}
 	}, [budget]);
-	useEffect(() => {
-
-		data.length ? setIsLoading(false) : setIsLoading(true);
-	}, [data]);
 	return (
 		<Card maxWidth="max-w-lg" hFull>
 	
@@ -49,7 +46,7 @@ export function CircleChart({data, onDateChange, model = "donut", budget, totalE
 			<div className="my-3">
 				<DateRange  onDateChange= {onDateChange}/>
 			</div>
-			{isLoading ?<div className="flex w-full  items-baseline"><Spinner/></div>  :<div className="flex w-full  items-baseline">
+			{dataIsLoading ?<div className="flex w-full  items-baseline"><Spinner/></div>  :<div className="flex w-full  items-baseline">
 				{(model == "donut" || model == "all") && (<DonutChart
 					data={ data }
 					category="total"
@@ -101,7 +98,7 @@ export function CircleChart({data, onDateChange, model = "donut", budget, totalE
 					</Card>
 				)}
 			</div>
-			{(!data.length && !isLoading) && <h3 className="text-center text-sm mt-4">Looks like you don't have any transactions, <Link className="text-blue-600" to ="/transactions?modalOpen">click here to create one </Link></h3>}
+			{(!data.length && !dataIsLoading) && <h3 className="text-center text-sm mt-4">Looks like you don't have any transactions, <Link className="text-blue-600" to ="/transactions?modalOpen">click here to create one </Link></h3>}
 		</Card>
 	);
 }
