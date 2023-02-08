@@ -94,8 +94,10 @@ export function TotalExpensesByYear() {
 				</>
 			)}
 			{isLoading ? <Spinner />:<LineChart chartData = {chartData}/>}
-			{(isEmptyData && !isLoading) && <h3 className="text-center text-sm mt-4">Looks like you don't have any transactions, <Link className="text-blue-600" to ="/transactions?modalOpen">click here to create one </Link></h3>}
+			{(isEmptyData && !isLoading) && <h3 className="text-center text-sm mt-4">Looks like you don't have any transactions on these date range, <Link className="text-blue-600" to ="/transactions?modalOpen">click here to create one </Link></h3>}
 		</Card>
 
 	);
 }
+
+// 
